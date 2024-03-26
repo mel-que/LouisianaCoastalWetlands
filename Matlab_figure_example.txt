@@ -1,0 +1,114 @@
+%% Plot EVI vs Year symbolized by Basin (style) and Marsh Class (color)
+
+% Create empty arrays for marker style (Basin) and color (MarshClass)
+mstyle = strings(size(vegRadius,1), 1); % Initialize mstyle as a string array
+medgecolor = zeros(size(vegRadius,1), 3); % Initialize mstyle as a numeric array for RGB triplet
+
+for i = 1:size(vegRadius,1)
+    rCB = find(siteClassBasin(:,1) == string(vegRadius(i,1))); % find row of siteCategory that equals the site in current vegRadius row
+    % Fill mstyle array for Basin
+    if siteClassBasin(rCB,6) == "AT"
+        mstyle(i) = "o";
+    elseif siteClassBasin(rCB,6) == "BA"
+        mstyle(i) = "x";
+    elseif siteClassBasin(rCB,6) == "BS"
+        mstyle(i) = "*";
+    elseif siteClassBasin(rCB,6) == "PO"
+        mstyle(i) = "square";
+    elseif siteClassBasin(rCB,6) == "TE"
+        mstyle(i) = "^";
+    elseif siteClassBasin(rCB,6) == "TV"
+        mstyle(i) = "pentagram";
+    end
+    
+    rM = find(siteMarsh(:,1) == string(vegRadius(i,1)) & siteMarsh(:,2) == string(vegRadius(i,13))); % match year between the matrices
+    % Fill medgecolor array for Marsh Class
+    if isempty(rM)
+        medgecolor(i,:) = [0.75 0.75 0.75]; % Gray; No data on marsh class
+    elseif siteMarsh(rM,3) == "Fresh"
+        medgecolor(i,:) = [0.3010 0.7450 0.9330]; % light blue
+    elseif siteMarsh(rM,3) == "Intermediate"
+        medgecolor(i,:) = [0.6039, 0.3882, 0.1412]; %brown
+    elseif siteMarsh(rM,3) == "Brackish"
+        medgecolor(i,:) = [0.9412, 0.1961, 0.9020]; % magenta
+    elseif siteMarsh(rM,3) == "Saline"
+        medgecolor(i,:) = [0.3686, 0.2353, 0.6000]; % purple
+    elseif siteMarsh(rM,3) == "Swamp"
+        medgecolor(i,:) = [0.4660 0.6740 0.1880]; % green
+    end
+end
+
+f=figure(2);
+f.Units = 'inches';
+f.Position = [6 4 13 10]; %[left bottom width height]
+ax = axes();
+
+for r = 1:size(vegRadius,1) % Plot EVI and year, symbolized based on mstyle & medgecolor
+    scat(r) = scatter(vegRadius(r,13), vegRadius(r,10), 'Marker', mstyle(r,1),'MarkerEdgeColor',medgecolor(r,:),'LineWidth',1.35,'SizeData',75);
+    % x=year; y=median veg index value, i=row in vegRadius
+    hold on;
+end
+
+hold on
+
+% Marsh class legend
+h(1) = plot(NaN,NaN, '_','MarkerEdgeColor',[0.75 0.75 0.75],'DisplayName', 'No Data');
+h(2) = plot(NaN,NaN, '_','MarkerEdgeColor',[0.3010 0.7450 0.9330],'DisplayName', 'Fresh');
+h(3) = plot(NaN,NaN,'_','MarkerEdgeColor',[0.6039, 0.3882, 0.1412],'DisplayName','Intermediate');
+h(4) = plot(NaN,NaN,'_','MarkerEdgeColor',[0.9412, 0.1961, 0.9020],'DisplayName','Brackish');
+h(5) = plot(NaN,NaN,'_','MarkerEdgeColor',[0.3686, 0.2353, 0.6000],'DisplayName','Saline');
+h(6) = plot(NaN,NaN,'_','MarkerEdgeColor',[0.4660 0.6740 0.1880],'DisplayName','Swamp');
+
+% Basin legend
+h(7) = plot(NaN,NaN,'Color','none','Marker','o','MarkerEdgeColor',[0 0 0],'DisplayName','Atchafalaya (AT)');
+h(8) = plot(NaN,NaN,'Color','none','Marker','x','MarkerEdgeColor',[0 0 0],'DisplayName','Barataria (BA)');
+h(9) = plot(NaN,NaN,'Color','none','Marker','*','MarkerEdgeColor',[0 0 0],'DisplayName','Breton Sound (BS)');
+h(10) = plot(NaN,NaN,'Color','none','Marker','square','MarkerEdgeColor',[0 0 0],'DisplayName','Pontachrain (PO)');
+h(11) = plot(NaN,NaN,'Color','none','Marker','^','MarkerEdgeColor',[0 0 0],'DisplayName','Terrebone (TE)');
+h(12) = plot(NaN,NaN,'Color','none','Marker','pentagram','MarkerEdgeColor',[0 0 0],'DisplayName','Teche/Vermillion (TV)');
+
+% copy the objects
+hCopy = copyobj(h, ax); 
+
+% replace XData and YData with NaN 
+set(hCopy,'XData', NaN', 'YData', NaN)
+
+% Alter the graphics properties
+hCopy(1).MarkerSize = 50;
+hCopy(1).LineWidth = 10;
+hCopy(2).MarkerSize = 50;
+hCopy(2).LineWidth = 10; 
+hCopy(3).MarkerSize = 50;
+hCopy(3).LineWidth = 10;
+hCopy(4).MarkerSize = 50;
+hCopy(4).LineWidth = 10;
+hCopy(5).MarkerSize = 50;
+hCopy(5).LineWidth = 10;
+hCopy(6).MarkerSize = 50;
+hCopy(6).LineWidth = 10;
+
+hCopy(7).MarkerSize = 75;
+hCopy(7).LineWidth = 1.5;
+hCopy(8).MarkerSize = 75; 
+hCopy(8).LineWidth = 1.5; 
+hCopy(9).MarkerSize = 75;
+hCopy(9).LineWidth = 1.5;
+hCopy(10).MarkerSize = 75;
+hCopy(10).LineWidth = 1.5;
+hCopy(11).MarkerSize = 75;
+hCopy(11).LineWidth = 1.5;
+hCopy(12).MarkerSize = 75;
+hCopy(12).LineWidth = 1.5;
+
+hold off
+
+title('Marsh Class and Hydrologic Basin')
+xlim([1999,2021])
+xticks(2000:1:2020);
+xlabel('Years')
+ylabel('EVI')
+
+% Add legend to figure using copied objects
+legend(hCopy,'Location','southoutside','NumColumns',2)
+
+set(gca, 'FontSize', 20,'FontName','Arial');
